@@ -85,5 +85,27 @@ namespace ClinkedIn.Controllers
             return Ok(servicesListAfterDeletion);
         }
 
+
+        [HttpPost("register")]
+        public ActionResult<int> AddService(CreateNewServiceRequest createRequest)
+        {
+
+            //if (!_validator.ValidateInterest(createRequest))
+            //{
+            //    return BadRequest(new { error = "users must have a username and password" });
+            //}
+
+            var newService = _serviceRepository.AddService(createRequest.Name);
+
+            return Created($"api/services/{newService.Id}", newService);
+        }
+
+        [HttpGet]
+        public ActionResult GetAllServices()
+        {
+            var services = _serviceRepository.GetAll();
+
+            return Ok(services);
+        }
     }
 }

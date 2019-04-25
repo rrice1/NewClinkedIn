@@ -1,6 +1,7 @@
 ﻿using ClinkedIn.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -54,6 +55,72 @@ namespace ClinkedIn.Data
             return remainingServices;
 
         }
+
+        const string ConnectionString = "Server = localhost; Database = NewClinkedIn; Trusted_Connection = True;";
+
+        public Service AddService(string Name)
+        {
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var insertServiceCommand = connection.CreateCommand();
+                insertServiceCommand.CommandText = $@"insert into Services (Name) 
+                                              output inserted.*
+                                              values (@name)";
+
+                insertServiceCommand.Parameters.AddWithValue("name", Name);
+
+                var reader = insertServiceCommand.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    var insertedName = reader["Name"].ToString();
+                    var insertedId = (int)reader["id"];
+
+                    var newService = new Service(Name) { Id = insertedId };
+
+                    //newUser.Id = insertedId; this does the same thing as having it in curlys above
+
+                    connection.Close();
+
+                    return newService;
+                }
+            }
+
+
+            throw new Exception("No service found");
+
+
+        }
+
+        public List<Service> GetAll()
+        {
+            var services = new List<Service>();
+            var connection = new SqlConnection(ConnectionString);
+            connection.Open();
+
+            var getAllServicesCommand = connection.CreateCommand();
+            getAllServicesCommand.CommandText = @"select * 
+                                               from services";
+
+            var reader = getAllServicesCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+
+                var id = (int)reader["id"];
+                var serviceName = reader["Name"].ToString();
+                var service = new Service(serviceName) { Id = id };
+
+                services.Add(service);
+            }
+
+            connection.Close();
+            return services;
+        }
+
 
     }
 }

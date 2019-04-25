@@ -26,18 +26,18 @@ namespace ClinkedIn.Controllers
         }
 
         //CREAT interests for users.
-        [HttpPost]
-        public ActionResult AddInterest(CreateInterestRequest createRequest)
-        {
-            if (!_validator.ValidateInterest(createRequest))
-            {
-                return BadRequest(new { error = "users must have an interest name" });
-            }
+        //[HttpPost]
+        //public ActionResult AddInterest(CreateInterestRequest createRequest)
+        //{
+        //    if (!_validator.ValidateInterest(createRequest))
+        //    {
+        //        return BadRequest(new { error = "users must have an interest name" });
+        //    }
 
-            var newInterestList = _interestRepository.AddInterest(createRequest.InterestName, createRequest.UserId);
-            var listOfInterestWithSameUserId = newInterestList.Where(x => x.UserId == createRequest.UserId).ToList();
-            return Created($"api/{listOfInterestWithSameUserId}", listOfInterestWithSameUserId);
-        }
+        //    var newInterestList = _interestRepository.AddInterest(createRequest.InterestName, createRequest.UserId);
+        //    var listOfInterestWithSameUserId = newInterestList.Where(x => x.UserId == createRequest.UserId).ToList();
+        //    return Created($"api/{listOfInterestWithSameUserId}", listOfInterestWithSameUserId);
+        //}
 
         //GET users with same interests.
         [HttpGet("getInterests/{userId}/{interestName}")]
@@ -66,5 +66,28 @@ namespace ClinkedIn.Controllers
             var interestsListAfterDeletion = _interestRepository.DeleteInterest(id, userId);
             return Ok(interestsListAfterDeletion);
         }
+
+        [HttpPost("register")]
+        public ActionResult<int> AddInterest(CreateNewInterestRequest createRequest)
+        {
+
+            //if (!_validator.ValidateInterest(createRequest))
+            //{
+            //    return BadRequest(new { error = "users must have a username and password" });
+            //}
+
+            var newInterest = _interestRepository.AddInterest(createRequest.Name);
+
+            return Created($"api/interests/{newInterest.Id}", newInterest);
+        }
+
+        [HttpGet]
+        public ActionResult GetAllUsers()
+        {
+            var interests = _interestRepository.GetAll();
+
+            return Ok(interests);
+        }
+
     }
 }

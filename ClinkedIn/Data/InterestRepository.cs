@@ -1,6 +1,7 @@
 ﻿using ClinkedIn.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -71,5 +72,71 @@ namespace ClinkedIn.Data
             var remainingInterestsforUser = _interests.Where(x => x.UserId == userId).ToList();
             return remainingInterestsforUser;
         }
+
+        const string ConnectionString = "Server = localhost; Database = NewClinkedIn; Trusted_Connection = True;";
+
+        public Interest AddInterest(string Name)
+        {
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var insertInterestCommand = connection.CreateCommand();
+                insertInterestCommand.CommandText = $@"insert into Interests (Name) 
+                                              output inserted.*
+                                              values (@name)";
+
+                insertInterestCommand.Parameters.AddWithValue("name", Name);
+
+                var reader = insertInterestCommand.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    var insertedName = reader["Name"].ToString();
+                    var insertedId = (int)reader["id"];
+
+                    var newInterest = new Interest(Name) { Id = insertedId };
+
+                    //newUser.Id = insertedId; this does the same thing as having it in curlys above
+
+                    connection.Close();
+
+                    return newInterest;
+                }
+            }
+
+
+            throw new Exception("No interest found");
+
+
+        }
+
+        public List<Interest> GetAll()
+        {
+            var interests = new List<Interest>();
+            var connection = new SqlConnection(ConnectionString);
+            connection.Open();
+
+            var getAllUsersCommand = connection.CreateCommand();
+            getAllUsersCommand.CommandText = @"select * 
+                                               from interests";
+
+            var reader = getAllUsersCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+
+                var id = (int)reader["id"];
+                var interestName = reader["Name"].ToString();
+                var interest = new Interest(interestName) { Id = id };
+
+                interests.Add(interest);
+            }
+
+            connection.Close();
+            return interests;
+        }
+
     }
 }

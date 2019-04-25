@@ -24,5 +24,9 @@ namespace ClinkedIn.Models
             Cost = cost;
         }
 
+        public Service(string name)
+        {
+            Name = name;
+        }
     }
 }

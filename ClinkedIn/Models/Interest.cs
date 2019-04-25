@@ -10,6 +10,7 @@ namespace ClinkedIn.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public string InterestName { get; set; }
+        public string Name { get; set; }
 
         public Interest(string interestName, int userId)
         {
@@ -22,6 +23,11 @@ namespace ClinkedIn.Models
             Id = id;
             InterestName = interestName;
             UserId = userId;
+        }
+
+        public Interest(string name)
+        {
+            Name = name;
         }
     }
 }
