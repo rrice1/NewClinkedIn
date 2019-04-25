@@ -40,6 +40,13 @@ namespace ClinkedIn.Models
             DisplayName = displayName;
         }
 
+        //public User(int id, string userName, string password)
+        //{
+        //    Id = id;
+        //    Username = userName;
+        //    Password = password;
+        //}
+
         public User(string username, string offense, DateTime releaseDate, int id)
         {
             Id = id;

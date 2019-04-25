@@ -23,14 +23,14 @@ namespace ClinkedIn.Controllers
 
         }
         //comment
-        [HttpGet]
+        //[HttpGet]
 
-        public ActionResult GetAllUsers()
-        {
-            var listOfUsers = _userRepository.GetAllUsers();
+        //public ActionResult GetAllUsers()
+        //{
+        //    var listOfUsers = _userRepository.GetAllUsers();
 
-            return Ok(listOfUsers);
-        }
+        //    return Ok(listOfUsers);
+        //}
 
         [HttpGet("{userId}")]
 
@@ -41,18 +41,40 @@ namespace ClinkedIn.Controllers
             return Ok(listOfUsers);
         }
 
-        [HttpPost("register")]
+        //[HttpPost("register")]
 
-        public ActionResult AddUser(CreateUserRequest createRequest)
+        //public ActionResult AddUser(CreateUserRequest createRequest)
+        //{
+        //    if (!_validator.Validate(createRequest))
+        //    {
+        //        return BadRequest(new { error = "users must have a username, password and display name" });
+        //    }
+
+        //    var newUser = _userRepository.AddUser(createRequest.Username, createRequest.Password, createRequest.DisplayName, createRequest.Offense);
+
+        //    return Created($"api/users/{newUser.Id}", newUser);
+        //}
+
+        [HttpPost("register")]
+        public ActionResult<int> AddUser(CreateUserRequest createRequest)
         {
+
             if (!_validator.Validate(createRequest))
             {
-                return BadRequest(new { error = "users must have a username, password and display name" });
+                return BadRequest(new { error = "users must have a username and password" });
             }
 
             var newUser = _userRepository.AddUser(createRequest.Username, createRequest.Password, createRequest.DisplayName, createRequest.Offense);
 
             return Created($"api/users/{newUser.Id}", newUser);
+        }
+
+        [HttpGet]
+        public ActionResult GetAllUsers()
+        {
+            var users = _userRepository.GetAll();
+
+            return Ok(users);
         }
     }
 }
