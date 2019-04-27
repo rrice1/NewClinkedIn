@@ -1,6 +1,7 @@
 ﻿using ClinkedIn.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,6 +53,80 @@ namespace ClinkedIn.Data
 
             return remainingUserServices;
 
+        }
+
+        const string ConnectionString = "Server = localhost; Database = NewClinkedIn; Trusted_Connection = True;";
+
+        public UserService AddUserService(int userId, int serviceId)
+        {
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var insertUserServiceCommand = connection.CreateCommand();
+                insertUserServiceCommand.CommandText = $@"insert into UserServices (userId, serviceId)
+                                              output inserted.*
+                                              values (@userId,@serviceId)";
+
+                insertUserServiceCommand.Parameters.AddWithValue("userId", userId);
+                insertUserServiceCommand.Parameters.AddWithValue("serviceId", serviceId);
+
+
+                var reader = insertUserServiceCommand.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    var insertedUserId = reader["userId"].ToString();
+                    var insertedServiceId = reader["serviceId"].ToString();
+                    var insertedId = (int)reader["id"];
+
+                    var newUserService = new UserService(userId,serviceId) { Id = insertedId };
+
+                    //newUser.Id = insertedId; this does the same thing as having it in curlys above
+
+                    connection.Close();
+
+                    return newUserService;
+                }
+            }
+
+
+            throw new Exception("No service found");
+
+
+        }
+
+        public List<UserService> GetAll()
+        {
+            var userServices = new List<UserService>();
+            var connection = new SqlConnection(ConnectionString);
+            connection.Open();
+
+            var getAllUserServicesCommand = connection.CreateCommand();
+            getAllUserServicesCommand.CommandText = @"select * from UserServices us 
+                                                  join Users u on u.id = us.userId 
+                                                  join Services s on s.id=us.serviceid";
+
+            var reader = getAllUserServicesCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+
+                var id = (int)reader["id"];
+                var userId = (int)reader["userId"];
+                var serviceId = (int)reader["serviceId"];
+                var username = reader["username"].ToString();
+                var displayName = reader["displayName"].ToString();
+                var offense = reader["offense"].ToString();
+                var name = reader["name"].ToString();
+                var userService = new UserService(userId, serviceId, username, displayName, offense, name) { Id = id };
+
+                userServices.Add(userService);
+            }
+
+            connection.Close();
+            return userServices;
         }
 
     }
